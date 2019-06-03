@@ -1,0 +1,161 @@
+#!/bin/bash
+#
+# Copyright (C) 2014 Extreme Engineering Solutions, Inc.
+#
+# Control on-board GPIO for X-ES boards
+#
+# Author: Nate Case <ncase@xes-inc.com>
+#
+
+. `dirname $0`/functions-xes.sh
+
+# Required bash workaround for global associative arrays
+# The LABELS array gets set by load_board_config based on the
+# GPIO_PIN_LABELS array it uses internally.
+declare -A LABELS
+declare -A GPIO_PIN_BY_LABEL
+
+# Declare an indexed array for integer to label lookup
+declare -a GPIO_LABEL_BY_PIN
+
+GPIO_MAX=-1
+GPIO_MIN=-1
+
+# Check if /sys GPIO interface exists
+ls $SYS_GPIO/export &> /dev/null
+EXP_AVAIL=$?
+ls $SYS_GPIO/unexport &> /dev/null
+UNEXP_AVAIL=$?
+if [ $EXP_AVAIL = "0" -a $UNEXP_AVAIL = "0" ]; then
+    SYS_AVAIL=1
+    GPIO_BASES=$(ls -1 $SYS_GPIO | sed -n '/gpiochip/p' | sed 's/gpiochip//g' |
+        sed -n 'H; ${g; s/\n/ /g; s/^[ \t]*//; p}')
+else
+    SYS_AVAIL=0
+fi
+
+if [ $SYS_AVAIL = 0 ]; then
+    echo "Error: GPIO sysfs unavailable"
+    exit 1
+fi
+
+usage() {
+    echo "Usage: ${CMDNAME} [-l] <signal> [value]"
+    echo ""
+    echo "  <signal>    GPIO signal name.  Run with -l to see a list."
+    echo ""
+    echo "  [value]     '0' or '1' to set output state,"
+    echo "              'in' or 'out' to configure GPIO direction,"
+    echo "              'low' or 'high' to set as an output with a default output state"
+    echo ""
+    exit 1
+}
+
+show_signals() {
+    printf "%-30s %-10s %s\n" "Device/Pin" "SYSFS" "Alias"
+    printf "%-30s %-10s %s\n" "----------" "-----" "-----"
+    if [ $GPIO_MAX -lt 0 ]; then
+        exit 0
+    fi
+    for gpio_n in $(seq $GPIO_MAX -1 $GPIO_MIN) ; do
+        sigpin="${GPIO_LABEL_BY_PIN[${gpio_n}]}"
+        sigalias=""
+        for key in "${!LABELS[@]}" ; do
+            if [ "${LABELS[${key}]}" = "${sigpin}" ] ; then
+                sigalias="${key}"
+                break
+            fi
+        done
+        printf "%-30s gpio%-6d %s\n" ${sigpin} ${gpio_n} ${sigalias}
+    done
+    exit 1
+}
+
+map_signals() {
+    for chip in $(find ${SYS_GPIO} -name gpiochip*) ; do
+        label=$(cat ${chip}/label)
+        base=$(cat ${chip}/base)
+        ngpio=$(cat ${chip}/ngpio)
+
+        # append I2C address to driver name
+        subsys=$(basename `readlink ${chip}/device/subsystem`)
+        if [ "${subsys}" = "i2c" ]; then
+            busdev=$(basename `readlink ${chip}/device`)
+            device=$(echo $busdev | awk -F"-" '{print $2}')
+            label="$label.$device"
+        fi
+        for gpio_n in $(seq $base $((base+ngpio))) ; do
+            n=$((gpio_n-base))
+            sigpin="${label}.${n}"
+            GPIO_PIN_BY_LABEL[$sigpin]=$gpio_n
+            GPIO_LABEL_BY_PIN[$gpio_n]=$sigpin
+            if [ $GPIO_MAX -lt 0 ] || [ $gpio_n -gt $GPIO_MAX ]; then
+                GPIO_MAX=$gpio_n
+            fi
+            if [ $GPIO_MIN -lt 0 ] || [ $gpio_n -lt $GPIO_MIN ]; then
+                GPIO_MIN=$gpio_n
+            fi
+        done
+    done
+}
+
+# map GPIO pins to labels for easy lookup
+map_signals
+
+SIGNAL=""
+# Parse command line options without using getopt
+while [ $# -ge 1 ]; do
+    case $1 in
+    -l) load_board_config `xes_board_name` LABELS
+        show_signals ;;
+    -?) usage ;;
+    -h) usage ;;
+    -*) echo "Invalid argument '$1'" ; usage ;;
+    *)  if [ -z "${SIGNAL}" ] ; then SIGNAL=$1; else SIGVAL=$1 ; fi ;;
+    esac
+    shift
+done
+
+if [ -z "${SIGNAL}" ] ; then
+    usage
+fi
+
+load_board_config `xes_board_name` LABELS
+
+# Check if signal alias was specified on command line instead of
+# <chip label>.<relative pin #> format
+ALIAS="${SIGNAL}"
+if [ "${LABELS[${SIGNAL}]}" != "" ] ; then
+    SIGNAL="${LABELS[${SIGNAL}]}"
+fi
+
+SYSFS_GPIO_NUM=${GPIO_PIN_BY_LABEL[${SIGNAL}]}
+
+if [ -z "${SYSFS_GPIO_NUM}" ] ; then
+    echo "Invalid signal '${SIGNAL}' specified"
+    echo "Expected format is <chip label>.<relative pin #> or a signal alias"
+    usage
+fi
+
+if [ -z "${SIGVAL}" ] ; then
+    # Handle read
+    sys_export_gpio ${SYSFS_GPIO_NUM}
+    val=`sys_read_gpio ${SYSFS_GPIO_NUM}`
+    sys_unexport_gpio ${SYSFS_GPIO_NUM}
+    echo "${ALIAS}: ${val}"
+else
+    sys_export_gpio ${SYSFS_GPIO_NUM}
+    case "${SIGVAL}" in
+    [01])     sys_write_gpio ${SYSFS_GPIO_NUM} ${SIGVAL}
+              echo "${ALIAS} set to ${SIGVAL}" ;;
+    in|out)   sys_set_direction_gpio ${SYSFS_GPIO_NUM} ${SIGVAL}
+              echo "Configured ${ALIAS} as ${SIGVAL}put" ;;
+    high|low) sys_set_direction_gpio ${SYSFS_GPIO_NUM} ${SIGVAL}
+              echo "Configured ${ALIAS} as output with value '${SIGVAL}'" ;;
+    *)        sys_unexport_gpio ${SYSFS_GPIO_NUM}
+              echo "Error: Invalid argument '${SIGVAL}'"
+              usage ;;
+    esac
+
+    sys_unexport_gpio ${SYSFS_GPIO_NUM}
+fi

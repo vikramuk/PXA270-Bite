@@ -1,0 +1,88 @@
+%define version @VERSION@
+%define release 1
+%define name xes-utils-boards
+%define buildroot %{_tmppath}/%{name}-%{version}-root
+
+Name: %{name}
+Version: %{version}
+Release: %{release}%{?dist}
+Summary: Board-specific files and utilities for X-ES boards
+License: GPL
+Group: Applications/Utilities
+URL: http://oss.xes-inc.com/linux/xes-utils
+Source0: http://oss.xes-inc.com/linux/xes-utils/%{name}/%{name}-%{version}.tar.gz
+Prefix: %{_prefix}
+BuildRoot: %{buildroot}
+Packager: Nate Case <ncase@xes-inc.com>
+Requires: xes-utils-base >= 0.8
+
+%description
+xes-utils-boards contains board-specific files and utilities for X-ES
+single-board computers running Linux.  
+
+%prep
+%setup -q
+
+%build
+%configure --prefix=%{_prefix} --enable-el 
+make
+
+%install
+make install prefix=%{_prefix} DESTDIR=%{buildroot}
+
+mkdir -p %{buildroot}%{_initrddir}
+mkdir -p %{buildroot}%{_sysconfdir}/xes/boards
+
+%post
+
+%clean
+rm -rf %{buildroot}
+
+%files
+%defattr(-,root,root)
+%doc README COPYING ChangeLog NEWS TODO AUTHORS INSTALL
+%{_sysconfdir}/xes/boards/*
+
+%changelog
+* Tue Dec 30 2014 Aaron Sierra <asierra@xes-inc.com>
+- Add XCalibur4500 and XCalibur4530 GPIO aliases
+
+* Tue Dec 30 2014 Aaron Sierra <asierra@xes-inc.com>
+- Add XCalibur4540 I2C devices and GPIO aliases
+
+* Tue Dec 30 2014 Aaron Sierra <asierra@xes-inc.com>
+- Add XCalibur4501 I2C devices and GPIO aliases
+
+* Tue Dec 30 2014 Aaron Sierra <asierra@xes-inc.com>
+- Add XPedite810[12] I2C devices and GPIO aliases
+
+* Mon Dec 29 2014 Aaron Sierra <asierra@xes-inc.com>
+- Add XAct1011 I2C devices and GPIO aliases
+
+* Thu Jul 24 2014 Aaron Sierra <asierra@xes-inc.com>
+- ebuild: Use --enable-gentoo in ebuild
+
+* Thu Jul 24 2014 Aaron Sierra <asierra@xes-inc.com>
+- spec: Use --enable-el in SPEC file
+
+* Thu Jul 24 2014 Aaron Sierra <asierra@xes-inc.com>
+- ebuild: Update SRC_URI
+
+* Thu Jul 24 2014 Aaron Sierra <asierra@xes-inc.com>
+- xpedite815[02]: Add active-low indicators to GPIO
+
+* Thu Jul 24 2014 Aaron Sierra <asierra@xes-inc.com>
+- xpedite815x: Move GPIO labels to non-generic files
+
+* Mon Jul 7 2014 Aaron Sierra <asierra@xes-inc.com>
+- Support preparing ebuild for Gentoo filesystems
+
+* Mon Jul 7 2014 Aaron Sierra <asierra@xes-inc.com>
+- Simplify configure.ac script
+
+* Mon Jul 7 2014 Aaron Sierra <asierra@xes-inc.com>
+- Add XPedite7570 and XPedite7501 GPIO aliases
+
+* Mon Jul 7 2014 Nate Case <ncase@xes-inc.com>
+- Board-specific portions of xes-utils functionality (v0.1)
+

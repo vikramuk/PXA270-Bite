@@ -1,0 +1,23 @@
+xes-utils
+---------
+
+This is a set of scripts and utilities that provide convenience functions
+for X-ES boards running Linux.  Most of these are written in bash and
+attempt to support a variety of X-ES boards and architectures.
+
+Installation
+------------
+
+	$ ./configure
+	$ make
+	$ make install
+
+Note that if you are using an official X-ES Gentoo-based Linux distribution,
+then the xes-utils package is probably already installed onto your system.
+
+Usage
+-----
+
+Each tool installed will be prefixed with "xes-", so the easiest way to
+get started is to just type "xes-" in your shell and hit [TAB] to see
+a list of available commands.

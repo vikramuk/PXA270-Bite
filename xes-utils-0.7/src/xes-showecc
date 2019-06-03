@@ -1,0 +1,27 @@
+#!/bin/sh
+
+EDAC_DIR=/sys/devices/system/edac
+
+if [ ! -d $EDAC_DIR ]; then
+	echo "EDAC not supported on this system"
+	exit 1
+fi
+
+SAVE_WD=`pwd`
+cd $EDAC_DIR
+
+FILES=`find -maxdepth 3 -name 'ce_count' -o -name 'ue_count'`
+
+if [ -z "$FILES" ]; then
+	cd $SAVE_WD
+	echo "EDAC enabled, but no driver found with support for error counters"
+	exit 1
+fi
+
+for x in $FILES; do
+	LINE="${LINE}$x: `cat $x` "
+done
+
+echo "$LINE" | sed 's/\.\/[^\/]*\///g'
+
+cd $SAVE_WD

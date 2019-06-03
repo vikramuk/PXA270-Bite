@@ -1,0 +1,52 @@
+xes-utils 0.7
+ * functions-xes: Fix to work with ash
+ * xes-led: Fix to work with ash
+ * xes-gpio: Fix to work with ash
+ * xes-showecc: Fix to work with ash
+ * xes-showtemp: Fix to work with ash
+ * xes-sysinfo: Fix to work with ash
+ * xes-getty: Allow nonexistant TTY devices without spewing respawn warnings
+
+xes-utils 0.6
+ * xes-getty: Use exec when calling final getty process
+ * xes-gpio: Support high and low direction states
+ * xes-kernel-make: New wrapper script to allow uniform kernel compilation
+   instructions across platforms, even for those requiring a cross-compiler
+   (x86_64 kernel with 32-bit filesystem).
+ * xes-led: Add support for led names with spaces
+ * xes-showtemp: Avoid attempts to read non-existent sensors
+ * Support getting board name with dmidecode (for older kernels)
+
+xes-utils 0.5
+ * xes-showecc: Show error message when error counters not found
+ * xes-gpio: Fix display of input values for sysfs-based drivers
+ * xes-sysinfo: Support fpX and bpX device names in addition to ethX
+ * xes-showtemp: Add XPedite730x support
+ * Add rpm and srpm build targets
+
+xes-utils 0.4-r1
+ * xes-gpio: Add dir command for changing GPIO pin directions
+ * xes-gpio: Update get command to display GPIO pin directions
+ * xes-showtemp: Add XCalibur41xx support
+ * xes-showtemp: Add XPedite73xx support
+
+xes-utils 0.4
+ * xes-gpio: Add support for GPIO devices with more than 8 pins
+ * xes-gpio: Busybox compatibility fix
+ * xes-gpio: Add XPedite51xx support
+
+xes-utils 0.3:
+ * Add support for XPedite51xx temperature sensor information
+ * Allow xes-getty to work in busybox as a controlling terminal
+   without "ash: can't access tty; job control turned off" errors.
+ * Add support for determining board name via DMA on x86 boards
+ * Add support for XPedite71xx temperature sensor information
+
+xes-utils 0.2:
+ * Add xes-led script for controlling on-board LEDs via /sys interface
+ * xes-gpio: Add support for /sys GPIO interface
+ * xes-sysinfo: Fix number of cores detection to work with newer kernels
+
+xes-utils 0.1:
+ * Initial release
+ * xes-showtemp, xes-sysinfo, xes-showecc, xes-gpio, xes-getty scripts

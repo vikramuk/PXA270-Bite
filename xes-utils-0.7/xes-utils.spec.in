@@ -1,0 +1,44 @@
+%define version @VERSION@
+%define release 1
+%define name xes-utils
+%define buildroot %{_tmppath}/%{name}-%{version}-root
+
+Name: %{name}
+Version: %{version}
+Release: %{release}
+Summary: Scripts and utilities for X-ES boards
+License: GPL
+Group: Applications/Utilities
+URL: http://xes-inc.com/sources/xes-utils
+Source0: http://xes-inc.com/sources/%{name}/%{name}-%{version}.tar.gz
+Prefix: %{_prefix}
+BuildRoot: %{buildroot}
+Packager: Nate Case <ncase@xes-inc.com>
+Requires: i2c-tools >= 3.0.1
+
+%description
+xes-utils is a set of scripts and utilities that provide convenience
+functions for X-ES boards running Linux.  Most of these are written in
+bash and attempt to support a variety of X-ES boards and architectures.
+
+%prep
+%setup -q
+
+%build
+%configure --prefix=%{_prefix}
+make
+
+%install
+make install prefix=%{_prefix} DESTDIR=%{buildroot}
+
+%clean
+rm -rf %{buildroot}
+
+%files
+%defattr(-,root,root)
+%doc README COPYING ChangeLog NEWS TODO AUTHORS INSTALL
+%{_bindir}/*
+
+%changelog
+* Tue Sep  7 2010 Nate Case <ncase@xes-inc.com>
+- Inital RPM release

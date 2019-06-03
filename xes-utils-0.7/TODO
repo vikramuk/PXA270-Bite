@@ -1,0 +1,3 @@
+* xes-ethinfo - Display information for each ethernet device that may
+                be more useful than 'ifconfig -a' (e.g., tying it
+                to specific MAC hardware, or front vs. rear panel, etc.)

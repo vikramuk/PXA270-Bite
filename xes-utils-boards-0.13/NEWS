@@ -1,0 +1,88 @@
+xes-utils-boards 0.13
+ * Add XPedite8103 I2C devices
+ * Add XCalibur4544 I2C devices
+ * Update XCalibur4647 I2C devices
+ * Add XCalibur4441 I2C devices
+ * Add XPedite7531 I2C devices
+
+xes-utils-boards 0.12
+ * ebuild: Enable amd64, arm and arm64 architectures
+ * Add XCalibur1412 I2C devices
+ * Add XCalibur4645 I2C devices
+ * Add XCalibur4647 I2C devices
+ * Add XCalibur4690 I2C devices
+
+xes-utils-boards 0.11
+ * Add XPedite7677 I2C devices
+ * Add XPedite7503 I2C devices
+ * Add XPedite7650 I2C devices
+ * Add XCalibur4646 I2C devices
+ * Add XCalibur4545 I2C devices
+ * Add XAct1012 I2C devices
+ * Add PEX87xx I2C device support
+ * Add XCalibur4533 I2C devices
+ * Fix COPYING license file
+
+xes-utils-boards 0.10
+ * Add XPedite7676 I2C devices
+ * Add XPedite7674 I2C devices
+ * Add XCalibur4640 I2C devices
+
+xes-utils-boards 0.9
+ * Remove GPIO labels from all boards
+ * Add XCalibur4531 I2C devices
+
+xes-utils-boards 0.8
+Add missing GPIOs to XPedite7570 and XPedite7501
+ * Add XPedite8171 I2C devices and GPIO aliases
+ * Add XCalibur4641 I2C devices and GPIO aliases
+ * Add XPedite7672 I2C devices and GPIO aliases
+
+xes-utils-boards 0.7
+ * Add I2C EEPROM to XPedite7691
+
+xes-utils-boards 0.6
+ * Remove XPedite7590 duplicate PCH_GPO_8 alias
+ * Add quotes around XPedite815[02] aliases
+ * Add script for checking GPIO alias viability
+ * Add/Update 2nd Gen Core i7 product GPIO aliases
+ * Remove non-existent XPedite7478 product
+ * Update XPedite7451 aliases and I2C devices
+ * Add XPedite7591 I2C devices and GPIO aliases
+ * Add XCalibur4643 I2C devices and GPIO aliases
+ * Add XPedite7670 and XPedite7691 I2C devices and GPIO aliases
+ * Add XPedite745[02] I2C devices and GPIO aliases
+ * Add XPedite7479 I2C devices and GPIO aliases
+ * Add XPedite757[45] I2C devices and GPIO aliases
+
+xes-utils-boards 0.5
+ * Add XCalibur4443 I2C devices and GPIO aliases
+ * Add XCalibur4444 I2C devices and GPIO aliases
+ * Add XPedite7451 I2C devices and GPIO aliases
+ * Add XPedite7472 GPIO aliases
+ * Add XPedite7530 I2C devices and GPIO aliases
+ * Add XPedite7572 I2C devices and GPIO aliases
+ * Add XPedite7590 GPIO aliases
+
+xes-utils-boards 0.4
+ * Fix inclusion of new boards into dist tarball
+
+xes-utils-boards 0.3
+ * Add XCalibur4500 and XCalibur4530 GPIO aliases
+ * Add XCalibur4540 I2C devices and GPIO aliases
+ * Add XCalibur4501 I2C devices and GPIO aliases
+ * Add XPedite810[12] I2C devices and GPIO aliases
+ * Add XAct1011 I2C devices and GPIO aliases
+
+xes-utils-boards 0.2
+ * ebuild: Use --enable-gentoo in ebuild
+ * spec: Use --enable-el in SPEC file
+ * ebuild: Update SRC_URI
+ * xpedite815[02]: Add active-low indicators to GPIO
+ * xpedite815x: Move GPIO labels to non-generic files
+ * Support preparing ebuild for Gentoo filesystems
+ * Simplify configure.ac script
+ * Add XPedite7570 and XPedite7501 GPIO aliases
+
+xes-utils-boards 0.1
+ * Initial release split off from xes-utils package

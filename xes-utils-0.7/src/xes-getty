@@ -1,0 +1,87 @@
+#!/bin/bash
+#
+# Simple wrapper around agetty/getty that attempts to auto-detect the
+# serial console baud rate based on the device tree or kernel command
+# line parameters.
+#
+# Auto-detection will only occur if the "-a" flag is passed to the script.
+# Everything else will be passed to agetty/getty unchanged.  "-a"
+# will be replaced with the actual baud rate to use.
+#
+# Author: Nate Case <ncase@xes-inc.com>
+
+DEFAULT_BAUD="115200"
+UBOOT_BAUD_FILE="/proc/device-tree/u-boot-env/baudrate"
+
+NUMARGS=$#
+IS_BUSYBOX=0
+
+if [[ ${NUMARGS} -gt 9 ]] ; then
+	echo "Warning: Maximum of 9 arguments are supported"
+fi
+
+# Locate the getty binary to use
+GETTY=""
+if [[ -f /sbin/agetty ]] ; then
+	GETTY=/sbin/agetty
+elif [[ -f /sbin/getty ]] ; then
+	GETTY=/sbin/getty
+else
+	GETTY=`which getty`
+fi
+
+if [[ "$GETTY" == "" ]] ; then
+	echo "Error: Unable to locate agetty/getty binary"
+	exit 1
+fi
+
+# Test if our getty application is a symlink, which implies that we are
+# running from a busybox-based filesystem.  If we are using busybox we
+# need to run getty with 'setsid cttyhack' to allow getty to have a
+# controlling tty that allows job control
+if [[ -h ${GETTY} ]] ; then
+	IS_BUSYBOX=1
+fi
+
+while [ $# -ge 1 ]; do
+	case $1 in
+	-a)
+		baud=${DEFAULT_BAUD}
+
+		# Look for baud rate specified on kernel command line
+		cmdline_baud=`cat /proc/cmdline | \
+				sed -n 's/.*console=[^,]*,\([0-9]*\).*/\1/p'`
+
+		if [[ "${cmdline_baud}" != "" ]] ; then
+			baud=${cmdline_baud}
+		elif [[ -f ${UBOOT_BAUD_FILE} ]] ; then
+			baud=`cat ${UBOOT_BAUD_FILE}`
+		fi
+
+		eval arg$((NUMARGS-$#))=\"${baud}\"
+		;;
+	*)
+		var=`echo "$1" | grep "^tty"`
+		if [ -n "$var" ]; then
+			ttydev=/dev/$var
+		fi
+
+		eval arg$((NUMARGS-$#))=\"$1\"
+		;;
+	esac
+
+	shift
+done
+
+if [ $IS_BUSYBOX -gt 0 ]; then
+	GETTY="/usr/bin/setsid /bin/cttyhack ${GETTY}"
+else
+	GETTY="exec ${GETTY}"
+fi
+
+# If the TTY isn't accessible to stty, then it will also not be accessible to
+# getty and would endlessly respawn. Stop this process so it doesn't respawn.
+stty -F $ttydev > /dev/null 2> /dev/null || kill -STOP $$
+
+${GETTY} "$arg0" "$arg1" "$arg2" "$arg3" "$arg4" "$arg5" "$arg6" "$arg7" \
+	"$arg8" "$arg9"

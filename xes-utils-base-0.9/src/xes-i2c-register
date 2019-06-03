@@ -1,0 +1,191 @@
+#!/bin/bash
+#
+# This script registers I2C device addresses with their respective drivers
+# for embedded devices on products from X-ES, Inc.
+#
+# Author: Aaron Sierra <asierra@xes-inc.com>
+#
+# For additional information contact support@xes-inc.com
+#
+
+. `dirname $0`/functions-xes.sh
+
+# We utilize the sysfs filesystem to gather ethernet info
+SYSFS_I2C_DEVICES=/sys/bus/i2c/devices
+# For x86 platforms we utilize DMI to gather product details
+SYSFS_DMI_DIR=/sys/class/dmi/id
+PROCFS_PRINTK=/proc/sys/kernel/printk
+# Host machine type
+MACHINE=`uname -m`
+
+usage() {
+    echo "Usage: $0 [options]"
+    echo ""
+    echo "Available options:"
+    echo ""
+    echo "  -u              Unregister I2C devices [default: register]"
+    echo "  -v              Verbose debug output"
+    echo "  -q              Quiet mode with no output"
+    echo "  -h              This help screen"
+    exit 1
+}
+
+msgout() {
+    if [ "$QUIET" = 1 ] ; then return ; fi
+    echo "$@"
+}
+
+verbose() {
+    if [ "$VERBOSE" = 0 ] ; then return ; fi
+    # echo to stderr so we don't interfere with stdout captures
+    echo "$@" 1>&2
+}
+
+# Find I2C bus matching given name.
+# echo SYSFS bus path and return 0 on success, return 1 on failure
+find_onboard_i2c_by_name() {
+    search="$1"
+    verbose "Searching for #$n I2C bus matching name '$search'"
+    for bus in `ls -1d $SYSFS_I2C_DEVICES/i2c-*`; do
+        local busno=`basename $bus | awk -F"-" '{print $2}'`
+        local name=`grep -o "$search" $bus/name`
+        verbose "Checking I2C BUS $bus ($name)"
+        if [ -n "$name" ]; then
+            echo "$bus"
+            verbose "Match found!"
+            return 0
+        fi
+    done
+    verbose "No I2C bus found matching '$search'"
+    return 1
+}
+
+# Find I2C bus matching given vendor and device ID.
+# The "0x" prefix for vendor and device ID is required
+find_pci_i2c_by_id() {
+    vendor_id=`echo "$1" | tr '[A-Z]' '[a-z]'`
+    dev_id=`echo "$2" | tr '[A-Z]' '[a-z]'`
+    verbose "Searching for I2C bus matching PCI vendor:device ID $vendor_id:$dev_id"
+    for bus in `ls -1d $SYSFS_I2C_DEVICES/i2c-*`; do
+        if [ ! -f $bus/device/vendor ] ||
+           [ ! -f $bus/device/device ]; then
+            return 1
+        fi
+        local busno=`basename $bus | awk -F"-" '{print $2}'`
+        local vid=`cat $bus/device/vendor`
+        local did=`cat $bus/device/device`
+        verbose "Checking I2C BUS $bus ($vid:$did)"
+        if [ "$vid:$did" = "$vendor_id:$dev_id" ] ; then
+            echo "$bus"
+            verbose "Match found!"
+            return 0
+        fi
+    done
+    verbose "No I2C bus found matching vendor:device ID '$vendor_id:$dev_id'"
+    return 1
+}
+
+find_x86_onboard_i2c() {
+    local product="$1"
+
+    case "$product" in
+    XPedite7201)
+        find_onboard_i2c_by_name "SMBus SCH"
+        ;;
+    XPedite815[02])
+        # Bay Trail Designware I2C
+        find_pci_i2c_by_id 0x8086 0x0f47
+        ;;
+    *)
+    find_onboard_i2c_by_name "SMBus I801"
+    ;;
+    esac
+}
+
+register_i2c_device() {
+    local device="$1"
+    local addr="$2"
+    local bus="$3"
+
+    msgout " * Registering $device @ $addr"
+    echo $device $addr > $bus/new_device 2>/dev/null || return 1
+}
+
+unregister_i2c_device() {
+    local device="$1"
+    local addr="$2"
+    local bus="$3"
+
+    msgout " * Unregistering $device @ $addr"
+    echo $addr > $bus/delete_device 2>/dev/null || return 1
+}
+
+# Register or unregister a device depending on what mode we're in
+handle_i2c_device() {
+    if [ $DO_REGISTER = 1 ] ; then
+        register_i2c_device "$1" "$2" "$3"
+    else
+        unregister_i2c_device "$1" "$2" "$3"
+    fi
+}
+
+# Do we register or unregister by default with no command line arguments?
+DO_REGISTER=1
+QUIET=0
+VERBOSE=0
+# Parse command line options without using getopt
+while [ $# -ge 1 ]; do
+    ALT_BASE_TAG=""
+    case $1 in
+    -u)     DO_REGISTER=0 ;;
+    -q)     QUIET=1 ;;
+    -v)     VERBOSE=1 ;;
+    -h)     usage ;;
+    -?)     usage ;;
+    -*)     echo "Invalid argument '$1'"; usage ;;
+    esac
+
+    shift
+done
+
+verbose "Detected machine name: $MACHINE"
+
+if echo $MACHINE | grep -q 86; then
+    verbose "x86 system detected"
+    if [ ! -d $SYSFS_DMI_DIR ]; then
+        echo " * sysfs DMI unsupported, not registering I2C devices"
+        exit 1
+    fi
+
+    # Extract useful information about card
+    PRODUCT_NAME=`cat $SYSFS_DMI_DIR/product_name`
+    verbose "Detected board name: $PRODUCT_NAME"
+
+    BUS=`find_x86_onboard_i2c $PRODUCT_NAME`
+    if [ -z "$BUS" ]; then
+        echo " * no onboard I2C controller found"
+        exit 1
+    fi
+
+    # Disable kernel messages, except for panics while registering I2C
+    # devices. Some kernels include a driver to register devices and
+    # though attempting to register the device again isn't a problem, the
+    # kernel logs some undesirable "error" messages:
+    #
+    # i2c-16: Failed to register i2c client pex8619 at 0x38 (-16)
+    #
+    # See Documentation/sysctl/kernel.txt for more info.
+    loglevel=`cat $PROCFS_PRINTK | awk '{print $1}'`
+    echo "1" > $PROCFS_PRINTK
+
+    load_board_config "${PRODUCT_NAME}"
+    for chip in ${I2C_DEVICES} ; do
+        varname_addrs=I2C_DEVICE_${chip}
+        for addr in ${!varname_addrs} ; do
+            handle_i2c_device ${chip} ${addr} ${BUS}
+        done
+    done
+
+    # Restore console_loglevel
+    echo "$loglevel" > $PROCFS_PRINTK
+fi

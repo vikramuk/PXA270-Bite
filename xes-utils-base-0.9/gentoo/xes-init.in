@@ -1,0 +1,19 @@
+#!/sbin/runscript
+# Copyright 2014 Extreme Engineering Solutions, Inc.
+# Distributed under the terms of the GNU General Public License v2
+
+start() {
+	ebegin "Registering X-ES on-board I2C devices"
+	# make sure xes-i2c-register output starts on its own line
+	einfo ""
+	/usr/bin/xes-i2c-register
+	eend $?
+}
+
+stop() {
+	ebegin "Unregistering X-ES on-board I2C devices"
+	# make sure xes-i2c-register output starts on its own line
+	einfo ""
+	/usr/bin/xes-i2c-register -u
+	eend $?
+}

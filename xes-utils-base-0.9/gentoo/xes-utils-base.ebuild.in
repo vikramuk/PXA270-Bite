@@ -1,0 +1,34 @@
+# Copyright 2014 X-ES, Inc.
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI="2"
+
+inherit toolchain-funcs
+
+DESCRIPTION="Convenience scripts and utilities for X-ES embedded systems"
+HOMEPAGE="http://www.xes-inc.com"
+SRC_URI="http://oss.xes-inc.com/linux/xes-utils/${PN}/${P}.tar.gz"
+
+LICENSE="GPL-2"
+SLOT="0"
+KEYWORDS="~amd64 x86 ~arm ppc ppc64"
+IUSE=""
+
+RDEPEND="
+    sys-apps/xes-utils-boards
+    sys-apps/i2c-tools
+    sys-devel/bc"
+
+DEPEND="${RDEPEND} !!sys-apps/xes-utils"
+
+src_compile() {
+	econf --enable-gentoo --enable-kernel-make \
+		|| die "econf failed"
+	emake CC=$(tc-getCC) CFLAGS="${CFLAGS}" || die
+}
+
+src_install() {
+	emake install prefix="${D}/usr" || die
+	newinitd gentoo/xes-init xes-init || die
+	dodoc README NEWS
+}

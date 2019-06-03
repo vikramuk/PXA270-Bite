@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# chkconfig: 1345 01 99
+# description: Register on-board I2C devices on X-ES single-board computers
+#
+# @INIT_DIR@/xes-init
+#
+# (c) 2014 Extreme Engineering Solutions, Inc.
+#
+### BEGIN INIT INFO
+# Short-Description: Initialization for X-ES SBCs
+# Description: Register on-board I2C devices on X-ES single-board computers
+### END INIT INFO
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+[ -e /etc/sysconfig/xes-init ] && . /etc/sysconfig/xes-init
+
+start()
+{
+	modprobe -q i2c-isch
+	modprobe -q i2c-i801
+	modprobe -q i2c-designware-pci
+	echo -n $"Registering X-ES on-board I2C devices"
+	/usr/bin/xes-i2c-register
+	echo ""
+	return 0
+}
+
+stop()
+{
+	echo -n "Unregistering X-ES on-board I2C devices"
+	/usr/bin/xes-i2c-register -u
+	echo ""
+	return 0
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  *)
+	echo $"Usage: $0 {start|stop}"
+	exit 3
+	;;
+esac
+
+exit $RETVAL

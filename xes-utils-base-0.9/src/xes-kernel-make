@@ -1,0 +1,17 @@
+#!/bin/bash
+
+args=("$*")
+
+if [ "$ARCH" == "" ]; then
+	arch=`uname -m`
+else
+	arch=$ARCH
+fi
+
+if [ "$arch" == "x86_64" ]; then
+	# Use x86_64 cross compiler if building for x86_64
+	exec make CROSS_COMPILE="x86_64-pc-linux-gnu-" $args
+else
+	exec make $args
+fi
+

@@ -1,0 +1,156 @@
+#!/bin/bash
+#
+# Copyright (C) 2009 Extreme Engineering Solutions, Inc.
+#
+# Control interfaced LEDs for X-ES boards
+#
+# Author: Bryan Brinsko <bbrinsko@xes-inc.com>
+#
+
+CMDNAME=`basename $0`
+SYS_LED=/sys/class/leds
+
+usage() {
+    echo "Usage: ${CMDNAME} <list|set> [device] [value]"
+    echo ""
+    echo "  [device]        LED device to access for set operation"
+    echo "                    (see '${CMDNAME} list' for available devices)"
+    echo "              NOTE: make sure to use "" if device name"
+    echo "                    has spaces"
+    echo "  [value]         Value (on, off, or 0 to max_brightness) to set"
+    echo "                    brightness of LED for 'set' operation"
+    echo ""
+    exit 1
+}
+
+# Lists names, current brightness, and max brightness of each LED connected
+#     to the /sys led interface
+# $1: a boolean value telling us whether there are any LEDS
+# $2: the list of names of LEDS
+sys_list_led () {
+    printf "Name:\t\tBrightness:\tMax Brightness:\n"
+    printf -- "-----\t\t-----------\t---------------\n"
+    if [ "$1" = "0" ]; then
+        echo "None"
+        return 0
+    fi
+    local i
+    local BRIGHT
+    local MAX
+    local NAME_LEN
+
+    shift
+    local names="$@"
+
+    for i in "${names}"; do
+        BRIGHT=`cat $SYS_LED/"$i"/brightness`
+        MAX=`cat $SYS_LED/"$i"/max_brightness`
+        NAME_LEN=`echo "$i" | wc -L`
+        if [ $NAME_LEN -lt "8" ]; then
+            printf "$i\t\t$BRIGHT\t\t$MAX\n"
+        elif [ $NAME_LEN -gt "7" ] && [ $NAME_LEN -lt "16" ]; then
+            printf "$i\t$BRIGHT\t\t$MAX\n"
+        else
+            printf "$i\n\t\t$BRIGHT\t\t$MAX\n"
+        fi
+    done
+}
+
+# Error message for incorrect value to set LED to
+# $1: Device we are trying to access
+sys_invalid_val_led () {
+    echo "Error: Invalid brightness value"
+    echo "The value must be between 0 and `cat $SYS_LED/$1/max_brightness` or the word 'on' or 'off'"
+    exit 1
+}
+
+# Sets the brightness of an LED
+# $1: The name of the LED to be set
+# $2: The value to set the LED to
+sys_set_led () {
+    echo "Changing the brightness of the $1 LED to $2"
+    echo $2 > $SYS_LED/"$1"/brightness
+}
+
+if ls $SYS_LED/* > /dev/null 2>&1; then
+    AVAIL=1
+    for file in $SYS_LED
+    do
+        LED_NAMES="$file"
+    done
+else
+    AVAIL=0
+    LED_NAMES=""
+fi
+
+# Start by evaluating the arguments
+case "$1" in
+    list)
+        CMD=$1
+        DEV=""
+        VAL=""
+        ;;
+    set)
+        if [ $AVAIL = "0" ]; then
+            echo "Operation not allowed: no available LEDs"
+            exit 1
+        fi
+        CMD=$1
+        if [ -z "$2" ]; then
+            echo "Error: No device was specified"
+            usage
+        fi
+        if [ -z "$3" ]; then
+            echo "Error: No value was specified"
+            usage
+        fi
+        DEV="$2"
+        VAL=$3
+        ;;
+    *)
+        echo "Invalid argument: expecting list or set"
+        usage
+        ;;
+esac
+
+# Making sure the command arguments for 'set' are correct
+if [ $CMD = "set" ]; then
+    GOOD_NAME=""
+    for i in "${LED_NAMES}"; do
+        if [ *"$i"* == *"$DEV"* ]; then
+            GOOD_NAME="TRUE"
+            break
+        fi
+    done
+    if [ "$GOOD_NAME" != "TRUE" ]; then
+        printf "Error: Invalid device '$DEV' specified\n\n"
+        sys_list_led "$AVAIL" "${LED_NAMES}"
+        exit 1
+    fi
+
+    # Determines if $VAL is a correct value by first evaluating 'on' or 'off'.
+    # Then it makes sure there are no spelling mistakes and last it makes sure
+    # the number is within range.
+    if [ $VAL = "off" ]; then
+        VAL=0
+    fi
+    if [ $VAL = "on" ]; then
+        VAL=`cat $SYS_LED/"$DEV"/max_brightness`
+    fi
+    VAL=`echo $VAL | tr [:alpha:] 'x' | sed 's/x/256/g'`
+    if [ `echo $VAL | wc -L` -gt "3" ]; then
+        sys_invalid_val_led "$DEV"
+    else
+        if [ "$VAL" -le `cat $SYS_LED/"$DEV"/max_brightness` -a "$VAL" -ge "0" ]; then
+            VAL=$VAL
+        else
+            sys_invalid_val_led "$DEV"
+        fi
+    fi
+
+    sys_set_led "$DEV" "$VAL"
+    exit 0
+fi
+
+sys_list_led $AVAIL "${LED_NAMES}"
+exit 0

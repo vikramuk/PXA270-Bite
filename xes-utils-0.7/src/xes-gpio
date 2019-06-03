@@ -1,0 +1,186 @@
+#!/bin/bash
+#
+# Copyright (C) 2008 Extreme Engineering Solutions, Inc.
+# 
+# Control on-board GPIO for X-ES boards
+#
+# Author: Nate Case <ncase@xes-inc.com>
+#
+
+. `dirname $0`/functions-xes.sh 2> /dev/null
+
+usage() {
+	cat <<-TEXT
+	Usage: ${CMDNAME} <get|set|dir|list> <device> [bit #] [value]
+
+	  <device>        GPIO device to access
+	                  (see '${CMDNAME} list' for available devices)
+	  [bit #]         Bit number to use for 'set' and 'dir' operations
+	  [value]         Value (0 or 1) to write for 'set' operation
+	                  Direction (in/out/high/low) for 'dir' operation
+
+	TEXT
+	exit 1
+}
+
+list_devs() {
+	local x
+	printf "${BOARD} on-board GPIO devices:\n\n"
+	if [ -z "$DEVS" ]; then
+		echo "  NONE"
+	else
+		for x in ${DEVS} ; do
+			echo "  ${x}"
+		done
+	fi
+	echo
+}
+
+CMDNAME=`basename $0`
+
+# Check if /sys GPIO interface exists
+ls $SYS_GPIO/export > /dev/null 2>&1
+EXP_AVAIL=$?
+ls $SYS_GPIO/unexport > /dev/null 2>&1
+UNEXP_AVAIL=$?
+if [ $EXP_AVAIL = "0" -a $UNEXP_AVAIL = "0" ]; then
+	SYS_AVAIL=1
+	GPIO_BASE=$(ls -1 $SYS_GPIO | sed -n '/gpiochip/p' | sed 's/gpiochip//g' |
+		sed -n 'H; ${g; s/\n/ /g; s/^[ \t]*//; p}')
+else
+	SYS_AVAIL=0
+fi
+
+BOARD=`xes_board_name`
+
+if [ $SYS_AVAIL = 0 ]; then
+	case $BOARD in
+		XCalibur1* | XPedite5000 | XChange1102 | XPedite80*)
+			DEVS="pca955x.18 pca955x.19"
+			;;
+		XPedite53* | XPedite51*)
+			DEVS="pca955x.18 pca955x.1c pca955x.1e pca955x.1f"
+			;;
+		XPedite71*)
+			DEVS="pca955x.18 pca955x.1c pca955x.1e pca955x.1f"
+			;;
+		*)
+			echo "Error: xes-gpio does not support $BOARD yet"
+			exit 1
+			;;
+	esac
+else
+	if [ -z "$GPIO_BASE" ]; then
+		DEVS=""
+	else
+		for i in $GPIO_BASE; do
+			DEVS="$DEVS`cat $SYS_GPIO/gpiochip$i/label`.$i "
+		done
+	fi
+fi
+
+CMD=$1
+
+case ${CMD} in
+	list)
+		list_devs
+		exit 0
+		;;
+	get | set | dir)
+		DEV=$2
+		if [ -z "${DEV}" ] ; then
+			echo "Error: No device was specified"
+			usage
+		fi
+		BITNUM=$3
+		BITVAL=$4
+		;;
+	*)
+		echo "Invalid argument: expecting one of 'get', 'set', 'dir', 'list'"
+		usage
+		;;
+esac
+
+# Extract chip address from dev name
+if [ $SYS_AVAIL = 0 ]; then
+	CHIP=`echo ${DEV} | awk -F. '{print "0x"$2}'`
+else
+	CHIP=`echo ${DEV} | awk -F. '{print $2}'`
+fi
+
+if [ "${CMD}" = "set" ] ; then
+	VALIDBITS=7
+	if [ $SYS_AVAIL != 0 ]; then
+		VALIDBITS=`sys_num_gpio $CHIP`
+	fi
+	if [ ${BITNUM} -lt 0 -o ${BITNUM} -ge ${VALIDBITS} ] ; then
+		echo "Error: Invalid bit number specified (expecting 0-$((${VALIDBITS} - 1)))"
+		usage
+	fi
+	if [ "${BITVAL}" != "0" -a "${BITVAL}" != "1" ] ; then
+		echo "Error: Bit value should be 1 or 0"
+		usage
+	fi
+fi
+
+if [ "${CMD}" = "dir" ] ; then
+	VALIDBITS=7
+	if [ $SYS_AVAIL != 0 ]; then
+		VALIDBITS=`sys_num_gpio $CHIP`
+	fi
+	if [ ${BITNUM} -lt 0 -o ${BITNUM} -ge ${VALIDBITS} ] ; then
+		echo "Error: Invalid bit number specified (expecting 0-$((${VALIDBITS} - 1)))"
+		usage
+	fi
+	if [ "${BITVAL}" != "in" -a "${BITVAL}" != "out" -a "${BITVAL}" != "high" -a "${BITVAL}" != "low" ] ; then
+		echo "Error: direction should be in or out"
+		usage
+	fi
+fi
+
+# Does ${DEV} match one of the items in ${DEVS} ?
+if ! echo ${DEVS} | sed 's/ /\n/g' | grep -qE "^${DEV}$"; then
+	printf "Error: Invalid device '${DEV}' specified\n\n"
+	list_devs
+	exit 1
+fi
+
+case ${CMD} in
+	get)
+		if [ $SYS_AVAIL = 0 ]; then
+			RAWVAL=`pca955x_gpio_get 0 ${CHIP}`
+		else
+			RAWVAL=`sys_gpio_get $CHIP`
+		fi
+
+		BINVAL=`echo $RAWVAL | sed 's/n/0/g'`
+		DECVAL=`bin_to_dec ${BINVAL}`
+		HEXVAL=`printf "0x%02x" $DECVAL`
+
+		printf "Read ${HEXVAL} from input register\n\n"
+		printf " Pin\t    State\t Dir\n"
+		printf -- " ---\t --------\t ---\n"
+		bits=`sys_num_gpio $CHIP`
+		for i in `seq 0 $((bits-1))`; do
+			printf " %3d\t" $i
+			printf " %8s\t" `dump_binary ${RAWVAL} $i`
+			printf " %s\n" `sys_gpio_dir_get $(($CHIP + $i))`
+		done
+		;;
+	set)
+		echo "-> Setting pin ${BITNUM} of ${DEV} to ${BITVAL}"
+		if [ $SYS_AVAIL = 0 ]; then
+			pca955x_gpio_set 0 ${CHIP} ${BITVAL} $((1<<BITNUM))
+		else
+			sys_gpio_set "$(($CHIP + $BITNUM))" $BITVAL
+		fi
+		;;
+	dir)
+		echo "-> Setting pin ${BITNUM} of ${DEV} to ${BITVAL}"
+		if [ $SYS_AVAIL = 0 ]; then
+			echo "Error: direction setting only supported through sysfs gpio interface"
+		else
+			sys_gpio_dir_set "$(($CHIP + $BITNUM))" $BITVAL
+		fi
+		;;
+esac

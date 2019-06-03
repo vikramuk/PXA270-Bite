@@ -1,0 +1,39 @@
+#!/bin/sh
+
+. `dirname $0`/functions-xes.sh 2> /dev/null
+
+NUM_LOGICAL_CORES=`find /sys/devices/system/cpu -maxdepth 1 -type d -name 'cpu[0-9]*' | wc -l`
+if [ "`uname -m`" = "ppc" ] ; then
+    # Temporary hack until a good method exists
+    # The sysfs 'core_id' file is always 0 for some reason on QorIQ
+    NUM_PHYS_CORES=${NUM_LOGICAL_CORES}
+else
+    NUM_PHYS_CORES=`find /sys/devices/system/cpu -maxdepth 3 -type f -name 'core_id' -exec cat {} \; | sort | uniq | wc -l`
+fi
+KERNEL=`uname -r`
+CPU=`grep -E "^cpu[^a-z]*:|^model name" /proc/cpuinfo | awk -F": " '{print $2;exit}'`
+KERN_CMDLINE=`cat /proc/cmdline`
+RAM_MB=$((`awk '/MemTotal/ {print $2}' /proc/meminfo` / 1024))
+CPU_MHZ=`grep -E "clock[^a-z]*:|^cpu MHz|^cpu freq" /proc/cpuinfo | awk -F': ' '{print $2;exit}' | awk -F. '{print $1}'`
+
+CWD=`pwd`
+cd /sys/class/net
+ETH_DEVICES=`ls -1d eth* bp* fp* 2> /dev/null`
+cd $CWD
+
+DT=/proc/device-tree
+
+echo "Board                : `xes_board_name`"
+if [ -f ${DT}/form-factor ]; then
+echo "Form factor          : `cat ${DT}/form-factor`"
+fi
+echo "Processor            : ${CPU}"
+echo "CPU frequency (MHz)  : ${CPU_MHZ}"
+echo "# of logical CPUs    : ${NUM_LOGICAL_CORES}"
+echo "# of physical cores  : ${NUM_PHYS_CORES}"
+echo "Memory size (MB)     : ${RAM_MB}"
+for eth in ${ETH_DEVICES}; do
+echo "${eth} MAC address     : `cat /sys/class/net/${eth}/address`"
+done
+echo "Kernel               : ${KERNEL}"
+echo "Kernel command line  : ${KERN_CMDLINE}"

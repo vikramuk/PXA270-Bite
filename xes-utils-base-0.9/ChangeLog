@@ -1,0 +1,258 @@
+* Mon Jul 7 2014 Aaron Sierra
+- (1a94caf) xes-utils-base 0.9 (HEAD, to-push)
+
+* Mon Jul 7 2014 Aaron Sierra
+- (ad847b9) xes-gpio: Handle zero GPIO devices gracefully
+
+* Mon Jul 7 2014 Aaron Sierra
+- (37dc921) Support preparing ebuild for Gentoo filesystems
+
+* Mon Jul 7 2014 Aaron Sierra
+- (dc9bf8d) Add --enable-kernel-make configure option
+
+* Mon Jul 7 2014 Aaron Sierra
+- (5da0e0b) Remove unnecessary tests from configure.ac
+
+* Wed Jul 2 2014 Aaron Sierra
+- (47ee9ab) xes-gpio: display each pin's SYSFS device in list
+
+* Wed Jul 2 2014 Aaron Sierra
+- (6aa3f8e) xes-gpio: Support platforms with two+ GPIO devices
+
+* Tue Jul 1 2014 Aaron Sierra
+- (0d42e55) xes-utils: Move EL-specific files to el subdirectory
+
+* Tue Jul 1 2014 Aaron Sierra
+- (69b6aaf) xes-i2c-register: Reconcile with initramfs version
+
+* Thu Jun 26 2014 Nate Case
+- (bfce0a9) xes-utils: Rename project to xes-utils-base
+
+* Thu Sep 26 2013 Nate Case
+- (9f358ad) xes-utils: Update URLs
+
+* Thu Jun 26 2014 Aaron Sierra
+- (b6e9e59) xes-utils: Use spaces instead of tabs
+
+* Tue Jul 1 2014 Aaron Sierra
+- (2ed4be1) Revert echo to heredoc conversions
+
+* Wed Jun 11 2014 Bob Schmitz
+- (2fe9890) - Removed function to_int, this is only used in one spot and doesn't add   a lot of value - Replaced uppercase local variables with lowercase variables for   consistency (origin/master, origin/HEAD, master)
+
+* Wed Jun 11 2014 Bob Schmitz
+- (8c7ce63) - Updated functions sys_gpio_dir_set, sys_gpio_dir_get, sys_gpio_set to   properly check for reserved or inaccessible pins - Updated function sys_export_gpio to return an exit status
+
+* Wed Jun 11 2014 Bob Schmitz
+- (8999790) - Replaced 'let' (bash builtin) with ((...)) in to_int function - Added additional checks for exported GPIO pins to functions: sys_gpio_dir_set, sys_gpio_dir_get, sys_gpio_set, and sys_gpio_get
+
+* Tue Jun 10 2014 Bob Schmitz
+- (90c2c01) Removed some redundant/unnecessary command calls from functions-xes.sh
+
+* Fri May 9 2014 Joe Schultz
+- (f3285e6) Increment version for new tagged release. (v0.7, rel0.7)
+
+* Fri May 9 2014 Joe Schultz
+- (13e274d) xes-led: Finish fix for ash. Some changes had not been saved before previous commit. These are cosmetic and do not affect operation.
+
+* Fri May 9 2014 Joe Schultz
+- (dbf9fbd) xes-led: Update to work with ash shell
+
+* Fri Feb 7 2014 Bob Schmitz
+- (826cd6b) - Updated several scripts to be ash compatible:   functions-xes.sh, xes-showecc, xes-showtemp, and xes-sysinfo - Moved non-ash compatible functions from functions-xes.sh to xes-led - Fixed syntax error in xes-gpio
+
+* Fri Feb 7 2014 Bob Schmitz
+- (1a72e33) Cosmetic fixes to xes-gpio using heredoc for usage message
+
+* Fri Feb 7 2014 Bob Schmitz
+- (5297aa1) Fixed a couple of typos in xes-gpio
+
+* Tue Feb 4 2014 Aaron Sierra
+- (47c3098) xes-getty: Send stderr from stty to /dev/null, too.
+
+* Tue Feb 4 2014 Aaron Sierra
+- (0dfa1d6) Allow xes-getty to handle nonexistent TTY devices without spewing respawn warnings to the console.
+
+* Tue Feb 4 2014 Aaron Sierra
+- (5426a33) Consistently indent with tabs instead of spaces in xes-getty.
+
+* Wed Sep 25 2013 Bob Schmitz
+- (4f091b0) xes-showtemp: Expanded comment regarding sourcing functions-xes.sh, condensed a couple of multi line conditionals to one line.
+
+* Wed Sep 25 2013 Bob Schmitz
+- (a6a59d1) xes-showtemp: Added a check for functions-xes.sh prior to sourcing it. xes_board_name will only be called if function exist, i.e. functions-xes.sh is sourced. Included pushd and popd per Aaron Sierra.
+
+* Wed Sep 25 2013 Bob Schmitz
+- (6549512) xes-showtemp: Removed board specific temperature sensor table, this hasn't been maintained and is not working in kernels 3.0 or newer. Updated auto sensor detection functionality eliminating a lot of unnecessary code. Sensor labels will now be printed in place of sensor inputs where labels exist...
+
+* Tue Jul 9 2013 Bob Schmitz
+- (d79a4e8) Updated 730* table to check that device nodes exist prior to parsing them
+
+* Thu Jan 24 2013 Bob Schmitz
+- (d223da4) - Moved all global variables to top of xes-showtemp, added some comments
+
+* Thu Jan 24 2013 Bob Schmitz
+- (343d1a6) - Minor updates to simplify xes-showtemp... - Replaced AUTO_SENSORS '0' or '1' value with 'true' (returns success   status) or 'false' (returns failure status) - 'type' variable on line 39 is a bash built in command, replaced with   'sensor_type'
+
+* Thu Jan 24 2013 Nate Case
+- (6376dab) xes-sysinfo: Display number of logical and physical CPU cores (v0.6)
+
+* Wed Jan 23 2013 Joe Schultz
+- (0c14684) xes-utils: Add xes-kernel-make to list of files in dist_bin_SCRIPTS
+
+* Wed Jan 23 2013 Aaron Sierra
+- (af6aa83) xes-utils 0.6 release
+
+* Thu Jan 17 2013 Joe Schultz
+- (d2a8357) xes-led: Add support for led names with spaces
+
+* Thu Jan 17 2013 Joe Schultz
+- (27617a2) xes-kernel-make: Add wrapper script for make
+
+* Fri Jul 6 2012 Aaron Sierra
+- (eb385f3) The addition of exec to xes-getty in r31052 didn't work with busybox. This modifies xes-getty busybox detection and makes necessary command changes immediately before GETTY execution.
+
+* Wed Jul 4 2012 Nate Case
+- (f274cee) xes-showtemp: Avoid attempts to read non-existent sensors
+
+* Mon Jul 2 2012 Aaron Sierra
+- (a84d96c) Use exec to replace the xes-getty script with the final getty process instead of spawning a child process.
+
+* Mon Nov 22 2010 Matt Starzewski
+- (7c8a990) Support high and low direction states, allowing for a glitch free transition after re-assigning an input pin to be an output.  From Documentation/gpio.txt...
+
+* Tue Nov 2 2010 Nate Case
+- (d7825e3) Global variables used by shared functions should be defined in the shared functions file.
+
+* Mon Oct 11 2010 Nate Case
+- (a70378c) Support getting board name with dmidecode
+
+* Mon Oct 11 2010 Nate Case
+- (396e991) RPM fix: Use %configure instead of ./configure
+
+* Tue Sep 21 2010 Aaron Sierra
+- (e0919e0) xes-showtemp: Add XCalibur433x and XCalibur434x
+
+* Mon Sep 13 2010 Nate Case
+- (a60078c) xes-utils 0.5 release (v0.5)
+
+* Mon Sep 13 2010 Nate Case
+- (5557667) xes-showecc: Improve error reporting
+
+* Mon Sep 13 2010 Nate Case
+- (db4e48f) Condense raw gpio values down to 1/0
+
+* Mon Sep 13 2010 Nate Case
+- (878e758) Define SYS_GPIO in functions-xes.sh instead of xes-gpio
+
+* Fri Sep 10 2010 Nate Case
+- (ce7530e) xes-showtemp: Fix syntax error to end case statement
+
+* Fri Sep 10 2010 Nate Case
+- (bad2b5b) xes-showtemp: Add support for XPedite730x
+
+* Tue Sep 7 2010 Nate Case
+- (9b4a0ad) Add RPM and SRPM build targets
+
+* Wed Sep 1 2010 Nate Case
+- (ccf5356) xes-sysinfo: Support fpX and bpX device names in addition to ethX
+
+* Mon Apr 26 2010 Aaron Sierra
+- (ec19721) xes-utils 0.4-r1 release (patchset applied to 0.4 archive) Add XPedite73xx support to xes-showtemp Update NEWS for changes since 0.4 release
+
+* Mon Apr 26 2010 Aaron Sierra
+- (418a739) xes-gpio: Add "dir" command for changing pin directions. Change "get" command to display pin directions, too.
+
+* Mon Apr 26 2010 Peter Tyser
+- (d11b42c) xes-showtemp: Add support for XCalibur41xx boards
+
+* Thu Mar 25 2010 Nate Case
+- (d788eea) Update NEWS with busybox fix info
+
+* Tue Mar 23 2010 Matt Czech
+- (34f47d2) xes-utils 0.4 release (v0.4)
+
+* Tue Mar 23 2010 Matt Czech
+- (82bcd98) xes-gpio: Fix binary to decimal conversion so that it works in busybox.
+
+* Thu Mar 18 2010 James Loethen
+- (31bd8fa) Add XPedite51xx support to xes-gpio
+
+* Tue Mar 16 2010 Matt Czech
+- (53ebfda) xes-gpio: Fix off by one bug in print statement
+
+* Tue Mar 9 2010 Matt Czech
+- (e6b738b) xes-gpio: Fix output formatting and minor fix for supporting devices with more than eight pins.
+
+* Tue Mar 9 2010 Matt Czech
+- (bf09641) xes-gpio: Suppress error messages for GPIO pins that are reserved because they are not marked at exportable in the kernel.
+
+* Tue Mar 9 2010 Matt Czech
+- (6872273) xes-gpio: Support 'get' and 'set' operators on GPIO devices with more than seven pins.
+
+* Tue Mar 9 2010 Matt Czech
+- (e46c1d9) xes-gpio: Support 'set' opperation on GPIO devices with more than 8 pins
+
+* Tue Mar 9 2010 Matt Czech
+- (0a0f4c8) Fix variable reference for SYS_AVAIL
+
+* Mon Feb 1 2010 Nate Case
+- (e7db4a1) xes-utils 0.3 (v0.3)
+
+* Mon Feb 1 2010 Nate Case
+- (dffbff0) Update NEWS for 0.3 release
+
+* Mon Feb 1 2010 Nate Case
+- (10c3c83) Add XPedite71xx support to xes-gpio
+
+* Thu Dec 3 2009 Peter Tyser
+- (4022351) xes-showtemp: Add support for XPedite71xx boards The XPedite71xx boards have the following sensors: hwmon0: ADM1023 @ 0x4c - Measures i3100 bridge temp and ambient temp hwmon1: ADM1023 @ 0x4e - Measures CPU temp and ambient temp hwmon2: CPU core 0 "Digital Thermal Sensor" (DTS), read via MSR hwmon3: CPU core 1 "Digital Thermal Sensor" (DTS), read via MSR
+
+* Thu Dec 3 2009 Peter Tyser
+- (160fef3) functions-xes: Add support for determing board name via DMI x86 product names are exposed via DMI data in Linux's sysfs filesystem. Use the sysfs DMI product name to return a proper value for the xes_board_name() function.
+
+* Wed Dec 2 2009 Peter Tyser
+- (17805eb) xes-utils: Use 'bash' instead of 'sh' (revert of r20129) A /bin/bash wrapper script was recently added to X-ES's busybox-based filesystems which allows the use of busybox's 'ash' shell to emulate 'bash'.  This allows the use of /bin/bash as a script interpreter in all filesystems, so use it instead of /bin/sh for xes-utils.
+
+* Wed Dec 2 2009 Peter Tyser
+- (ac5bf43) xes-getty: Fix 'setsid' location By default busybox installs 'setsid' at /usr/bin/setsid, not /bin/setsid
+
+* Tue Dec 1 2009 Peter Tyser
+- (ff0e109) xes-getty: Call 'getty' via 'setsid cttyhack' when using busybox When using busybox's init process, getty is not executed with a controlling terminal when called via the xes-getty script.  This results in the following error during login:   ash: can't access tty; job control turned off
+
+* Tue Dec 1 2009 Peter Tyser
+- (8f04e72) xes-showtemp: Add XPedite51xx temperature sensor information
+
+* Tue Dec 1 2009 Peter Tyser
+- (9b3da4d) xes-utils: Use 'sh' instead of 'bash' By default, a filesystem based on busybox does not include a 'bash' executable.  Using 'sh' instead of 'bash' should allow these scripts to work with a default busybox installation out of the box.  Note that on most filesystems 'sh' is just a symlink to another shell, eg generally 'bash' on a fully functional filesystem and 'ash' on a busybox-based filesystems.
+
+* Wed Oct 14 2009 Nate Case
+- (7b900a0) xes-utils 0.2 release (v0.2)
+
+* Thu Oct 1 2009 Brian Brinsko
+- (0d5f983) Made a TODO file for xes-utils. It includes a definition of xes-eth.
+
+* Tue Jun 23 2009 Nate Case
+- (c857909) Update release notes for upcoming 0.2 release
+
+* Tue Jun 23 2009 Nate Case
+- (074f445) xes-led: Make executable
+
+* Tue Jun 23 2009 Brian Brinsko
+- (29b0106) Added xes-led to the list of programs to install with the xes-utils package.
+
+* Tue Jun 23 2009 Brian Brinsko
+- (c990d2c) Moved the function sys_invalid_val_led in to xes-led.
+
+* Tue Jun 23 2009 Brian Brinsko
+- (7b145af) Added a new test (xes-led) that is able to list the leds and set leds individually. Some functions had to be added to functions-xes.sh to accommodate xes-led.
+
+* Fri Jun 19 2009 Brian Brinsko
+- (e0b6333) Reimplemented xes-gpio so that it will first try to use the /sys gpio interface and if it can't it will fall back to the normal i2c interface.
+
+* Tue May 12 2009 Nate Case
+- (7f66864) Fix number of cores detection to work with newer kernels.
+
+* Tue May 12 2009 Nate Case
+- (b6f7470) Initial commit of xes-utils package.  This uses the standard autotools build system.
+

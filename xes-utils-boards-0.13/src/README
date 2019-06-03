@@ -1,0 +1,13 @@
+Board configuration files in this directory are loaded based on the
+detected board name (via device tree on PowerPC, and DMI on x86).
+
+Scripts load configuration files as follows:
+
+1) First source global.conf
+2) Load any wildcard-matched configuration files (e.g., xpedite100x.conf) if
+   the filename matches the board name
+3) Load the board-specific configuration file (e.g., xpedite1000.conf)
+
+Note that *all* of the matching configuration files are loaded if they
+exist.  That is, for an XPedite1000, global.conf, xpedite100x.conf, and
+xpedite1000.conf will all get sourced (in that order).
