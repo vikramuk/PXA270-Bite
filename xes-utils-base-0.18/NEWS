@@ -1,3 +1,40 @@
+xes-utils-base 0.18
+ * xes-i2c-register: Support XPedite8103
+ * xes-getty: Always launch getty via exec
+ * xes-showecc: Support additional count files
+
+xes-utils-base 0.17
+ * ebuild: Enable arm and arm64 architectures
+ * xes-sysinfo: Add ethernet device wildcards
+
+xes-utils-base 0.16
+ * xes-gpio: Don't filter I2C bus information
+ * xes-sysinfo: Support muli-socket systems
+ * COPYING: Clarify that package is GPLv2 licensed
+
+xes-utils-base 0.15
+ * xes-getty: Add "-k" option to auto-detect serial port
+
+xes-utils-base 0.14
+ * xes-i2c-register: Support XPedite8171
+
+xes-utils-base 0.13
+ * xes-i2c-register: Skip non-PCI I2C bus, not error
+
+xes-utils-base 0.12
+ * xes-getty: Handle non-uniform baudrates
+ * xes-showtemp: Eliminate directory changes
+ * xes-showtemp: Handle new hwmon sysfs organization
+ * ebuild: Enable AMD64 architecture
+
+xes-utils-base 0.11
+ * xes-gpio: Update for pure memory-mapped GPIO
+ * functions-xes: Prevent ls "error" from reaching user
+
+xes-utils-base 0.10
+ * xes-i2c-register: Support XPedite810[12]
+ * xes-gpio: Correct off-by-one error
+
 xes-utils-base 0.9
  * ebuild: Use --enable-gentoo in ebuild
  * spec: Use --enable-el in SPEC file

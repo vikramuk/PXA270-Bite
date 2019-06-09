@@ -9,11 +9,11 @@ Release: %{release}%{?dist}
 Summary: Scripts and utilities for X-ES boards
 License: GPL
 Group: Applications/Utilities
-URL: http://oss.xes-inc.com/linux/xes-utils
+URL: http://oss.xes-inc.com/linux/xes-utils/%{name}
 Source0: http://oss.xes-inc.com/linux/xes-utils/%{name}/%{name}-%{version}.tar.gz
 Prefix: %{_prefix}
 BuildRoot: %{buildroot}
-Packager: Nate Case <ncase@xes-inc.com>
+Packager: Aaron Sierra <asierra@xes-inc.com>
 Requires: i2c-tools >= 3.0.1
 Obsoletes: xes-utils
 
@@ -57,6 +57,47 @@ rm -rf %{buildroot}
 %{_sysconfdir}/e2fsck.conf
 
 %changelog
+* Thu May 11 2017 Aaron Sierra <asierra@xes-inc.com> - 0.16
+- xes-gpio: Don't filter I2C bus information
+- xes-sysinfo: Support muli-socket systems
+- COPYING: Clarify that package is GPLv2 licensed
+
+* Tue May 3 2016 Ryan Schaefer <rschaefer@xes-inc.com>
+- xes-getty: Add "-k" option to auto-detect serial port
+
+* Thu Nov 19 2015 Aaron Sierra <asierra@xes-inc.com>
+- xes-i2c-register: Support XPedite8171
+
+* Mon Oct 19 2015 Aaron Sierra <asierra@xes-inc.com>
+- xes-i2c-register: Skip non-PCI I2C bus, not error
+
+* Mon Oct 19 2015 Aaron Sierra <asierra@xes-inc.com>
+- xes-i2c-register: Trivial indentation fix
+
+* Fri Sep 28 2015 Thomas VanSelus <tvanselus@xes-inc.com>
+- ebuild: Enable AMD64 architecture
+
+* Fri Sep 28 2015 Thomas VanSelus <tvanselus@xes-inc.com>
+- xes-showtemp: Handle new hwmon sysfs organization
+
+* Fri Sep 28 2015 Thomas VanSelus <tvanselus@xes-inc.com>
+- xes-showtemp: Eliminate directory changes
+
+* Wed Sep 9 2015 Aaron Sierra <asierra@xes-inc.com>
+- xes-getty: Handle non-uniform baudrates
+
+* Thu May 28 2015 Aaron Sierra <asierra@xes-inc.com>
+- xes-gpio: Update for pure memory-mapped GPIO
+
+* Thu May 28 2015 Aaron Sierra <asierra@xes-inc.com>
+- functions-xes: Prevent ls "error" from reaching user
+
+* Tue Dec 30 2014 Aaron Sierra <asierra@xes-inc.com>
+- xes-i2c-register: Support XPedite810[12]
+
+* Tue Dec 30 2014 Aaron Sierra <asierra@xes-inc.com>
+- xes-gpio: Correct off-by-one error
+
 * Thu Jul 24 2014 Aaron Sierra <asierra@xes-inc.com>
 - ebuild: Use --enable-gentoo in ebuild
 

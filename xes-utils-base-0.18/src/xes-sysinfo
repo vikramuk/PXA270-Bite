@@ -8,7 +8,7 @@ if [ "`uname -m`" = "ppc" ] ; then
     # The sysfs 'core_id' file is always 0 for some reason on QorIQ
     NUM_PHYS_CORES=${NUM_LOGICAL_CORES}
 else
-    NUM_PHYS_CORES=`find /sys/devices/system/cpu -maxdepth 3 -type f -name 'core_id' -exec cat {} \; | sort | uniq | wc -l`
+    NUM_PHYS_CORES=`find /sys/devices/system/cpu -maxdepth 3 -type f | grep -E 'core_id|physical_package_id' | xargs cat | xargs -n 2 | sort | uniq | wc -l`
 fi
 KERNEL=`uname -r`
 CPU=`grep -E "^cpu[^a-z]*:|^model name" /proc/cpuinfo | awk -F": " '{print $2;exit}'`
@@ -18,7 +18,7 @@ CPU_MHZ=`grep -E "clock[^a-z]*:|^cpu MHz|^cpu freq" /proc/cpuinfo | awk -F': ' '
 
 CWD=`pwd`
 cd /sys/class/net
-ETH_DEVICES=`ls -1d eth* bp* fp* 2> /dev/null`
+ETH_DEVICES=`ls -1d eth* bp* fp* cp* xg* xlg* 2> /dev/null`
 cd $CWD
 
 DT=/proc/device-tree

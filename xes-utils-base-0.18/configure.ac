@@ -1,5 +1,5 @@
 dnl Process this file with autoconf
-AC_INIT(xes-utils-base, 0.9)
+AC_INIT(xes-utils-base, 0.18)
 AC_PREREQ(2.5)
 AC_CONFIG_SRCDIR(src/functions-xes.sh.in)
 AC_CONFIG_AUX_DIR(config)

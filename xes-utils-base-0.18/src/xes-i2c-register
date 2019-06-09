@@ -69,7 +69,7 @@ find_pci_i2c_by_id() {
     for bus in `ls -1d $SYSFS_I2C_DEVICES/i2c-*`; do
         if [ ! -f $bus/device/vendor ] ||
            [ ! -f $bus/device/device ]; then
-            return 1
+            continue
         fi
         local busno=`basename $bus | awk -F"-" '{print $2}'`
         local vid=`cat $bus/device/vendor`
@@ -92,13 +92,13 @@ find_x86_onboard_i2c() {
     XPedite7201)
         find_onboard_i2c_by_name "SMBus SCH"
         ;;
-    XPedite815[02])
+    XPedite810[123]|XPedite815[02]|XPedite8171)
         # Bay Trail Designware I2C
         find_pci_i2c_by_id 0x8086 0x0f47
         ;;
     *)
-    find_onboard_i2c_by_name "SMBus I801"
-    ;;
+        find_onboard_i2c_by_name "SMBus I801"
+        ;;
     esac
 }
 

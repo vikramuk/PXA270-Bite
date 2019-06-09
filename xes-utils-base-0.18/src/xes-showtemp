@@ -6,25 +6,26 @@
 
 # Try to detect board name
 BOARD=`xes_board_name 2> /dev/null`
-# Save current working directory
-CWD=`pwd`
 # Default sensors location in sysfs
 SYS_HWMON=/sys/class/hwmon
 
 printf "Temperature sensor readings"
 [ -z "$BOARD" ] && printf ":\n\n" || printf " for $BOARD:\n\n"
-for sensor in `ls $SYS_HWMON`; do
-    [ -d $SYS_HWMON/$sensor/device ] || continue
-    cd $SYS_HWMON/$sensor/device > /dev/null
-    for input in *_input; do
+for sensdir in `ls -1 $SYS_HWMON`; do
+    if [ -e $SYS_HWMON/$sensdir/name ]; then
+        sensor="$SYS_HWMON/$sensdir"
+    else
+        sensor="$SYS_HWMON/$sensdir/device"
+    fi
+    [ -d $sensor ] || continue
+    for input in `ls -1 $sensor/*_input`; do
         label=`echo $input | sed 's/input/label/'`
         if [ -e $label ]; then
-            name=`cat name`.`cat $label`
+            name=`cat $sensor/name`.`cat $label`
         else
-            name=`cat name`.$input
+            name=`cat $sensor/name`.`basename $input`
         fi
-        temp=$(((`cat $SYS_HWMON/$sensor/device/$input` + 500) / 1000))
+        temp=$(((`cat $input` + 500) / 1000))
         echo "$name: $temp C"
     done
 done
-cd $CWD

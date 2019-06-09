@@ -1,5 +1,95 @@
-* Mon Jul 7 2014 Aaron Sierra
-- (1a94caf) xes-utils-base 0.9 (HEAD, to-push)
+* Thu May 11 2017 Aaron Sierra
+- (7fc03bb) xes-utils-base 0.16 (HEAD -> master, v0.16, origin/master, origin/HEAD)
+
+* Thu May 11 2017 Aaron Sierra
+- (66bb4b0) spec: Update package metadata (URL and Packager)
+
+* Thu Apr 20 2017 Joe Schultz
+- (640ca30) xes-gpio: Don't filter I2C bus information
+
+* Fri Apr 14 2017 Zach Vargas
+- (1f811e9) xes-sysinfo: Support muli-socket systems
+
+* Mon Oct 24 2016 asierra
+- (1756dba) Merge branch 'master' of ncase/xes-utils-base into master (zvargas/master, jschultz/master)
+
+* Wed Oct 19 2016 Nate Case
+- (2eb1bee) Fix COPYING license file
+
+* Tue May 3 2016 Aaron Sierra
+- (0200965) xes-utils-base 0.15 (v0.15)
+
+* Thu Apr 28 2016 Ryan Schaefer
+- (ed26e35) xes-getty: Add "-k" option to auto-detect serial port (rschaefer/rschaefer-xes-getty-cmdline)
+
+* Thu Nov 19 2015 Aaron Sierra
+- (e9af83a) xes-utils-base 0.14 (v0.14)
+
+* Thu Nov 19 2015 Aaron Sierra
+- (5ee9b66) xes-i2c-register: Support XPedite8171
+
+* Mon Oct 19 2015 Aaron Sierra
+- (a57fd4e) xes-utils-base 0.13 (v0.13)
+
+* Mon Oct 19 2015 Aaron Sierra
+- (9bdf28b) xes-i2c-register: Skip non-PCI I2C bus, not error
+
+* Mon Oct 19 2015 Aaron Sierra
+- (5a11d9f) xes-i2c-register: Trivial indentation fix
+
+* Mon Sep 28 2015 Thomas VanSelus
+- (e9afda9) xes-utils-base 0.12 (v0.12, to-push)
+
+* Tue Sep 29 2015 Thomas VanSelus
+- (1342c6e) ebuild: Enable AMD64 architecture
+
+* Mon Sep 28 2015 Thomas VanSelus
+- (b45130c) xes-showtemp: Handle new hwmon sysfs organization
+
+* Mon Sep 28 2015 Thomas VanSelus
+- (b130b87) xes-showtemp: Eliminate directory changes
+
+* Wed Sep 9 2015 Aaron Sierra
+- (7ded8bf) xes-getty: Handle non-uniform baudrates
+
+* Thu May 28 2015 Aaron Sierra
+- (25e34c2) xes-utils-base 0.11 (v0.11)
+
+* Thu May 28 2015 Aaron Sierra
+- (2626694) xes-gpio: Update for pure memory-mapped GPIO
+
+* Thu May 28 2015 Aaron Sierra
+- (81919fb) functions-xes: Prevent ls "error" from reaching user
+
+* Tue Dec 30 2014 Aaron Sierra
+- (10a322b) xes-utils-base 0.10 (v0.10, test)
+
+* Tue Dec 30 2014 Aaron Sierra
+- (0f41eb7) xes-i2c-register: Support XPedite810[12]
+
+* Tue Dec 30 2014 Aaron Sierra
+- (a2afab7) xes-gpio: Correct off-by-one error
+
+* Thu Jul 24 2014 Aaron Sierra
+- (f0ff55d) xes-utils-base 0.9 (v0.9)
+
+* Thu Jul 24 2014 Aaron Sierra
+- (f5e3af8) ebuild: Use --enable-gentoo in ebuild
+
+* Thu Jul 24 2014 Aaron Sierra
+- (568bcb8) spec: Use --enable-el in SPEC file
+
+* Thu Jul 24 2014 Aaron Sierra
+- (cfdf5e8) ebuild: Update SRC_URI
+
+* Wed Jul 23 2014 Aaron Sierra
+- (dd3647e) functions-xes: Ensure GPIO labels correctly parsed
+
+* Tue Jul 8 2014 Aaron Sierra
+- (50fbd8c) configs: load_board_config() requires BASH
+
+* Wed Jul 23 2014 Aaron Sierra
+- (3d09590) xes-getty: Don't use cttyhack with BusyBox
 
 * Mon Jul 7 2014 Aaron Sierra
 - (ad847b9) xes-gpio: Handle zero GPIO devices gracefully
@@ -38,7 +128,7 @@
 - (2ed4be1) Revert echo to heredoc conversions
 
 * Wed Jun 11 2014 Bob Schmitz
-- (2fe9890) - Removed function to_int, this is only used in one spot and doesn't add   a lot of value - Replaced uppercase local variables with lowercase variables for   consistency (origin/master, origin/HEAD, master)
+- (2fe9890) - Removed function to_int, this is only used in one spot and doesn't add   a lot of value - Replaced uppercase local variables with lowercase variables for   consistency
 
 * Wed Jun 11 2014 Bob Schmitz
 - (8c7ce63) - Updated functions sys_gpio_dir_set, sys_gpio_dir_get, sys_gpio_set to   properly check for reserved or inaccessible pins - Updated function sys_export_gpio to return an exit status
@@ -50,7 +140,7 @@
 - (90c2c01) Removed some redundant/unnecessary command calls from functions-xes.sh
 
 * Fri May 9 2014 Joe Schultz
-- (f3285e6) Increment version for new tagged release. (v0.7, rel0.7)
+- (f3285e6) Increment version for new tagged release. (v0.7, rel0.7-noff)
 
 * Fri May 9 2014 Joe Schultz
 - (13e274d) xes-led: Finish fix for ash. Some changes had not been saved before previous commit. These are cosmetic and do not affect operation.

@@ -78,13 +78,15 @@ map_signals() {
         ngpio=$(cat ${chip}/ngpio)
 
         # append I2C address to driver name
-        subsys=$(basename `readlink ${chip}/device/subsystem`)
-        if [ "${subsys}" = "i2c" ]; then
-            busdev=$(basename `readlink ${chip}/device`)
-            device=$(echo $busdev | awk -F"-" '{print $2}')
-            label="$label.$device"
+        dev="${chip}/device"
+        if [ -d "$dev" ]; then
+            subsys=$(basename `readlink ${dev}/subsystem`)
+            if [ "${subsys}" = "i2c" ]; then
+                busdev=$(basename `readlink ${chip}/device`)
+                label="$label.$busdev"
+            fi
         fi
-        for gpio_n in $(seq $base $((base+ngpio))) ; do
+        for gpio_n in $(seq $base $((base+ngpio-1))) ; do
             n=$((gpio_n-base))
             sigpin="${label}.${n}"
             GPIO_PIN_BY_LABEL[$sigpin]=$gpio_n

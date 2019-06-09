@@ -7,21 +7,14 @@ if [ ! -d $EDAC_DIR ]; then
     exit 1
 fi
 
-SAVE_WD=`pwd`
-cd $EDAC_DIR
-
-FILES=`find -maxdepth 3 -name 'ce_count' -o -name 'ue_count'`
+FILES=`find $EDAC_DIR -maxdepth 3 -name 'ce*_count' -o -name 'ue*_count'`
 
 if [ -z "$FILES" ]; then
-    cd $SAVE_WD
     echo "EDAC enabled, but no driver found with support for error counters"
     exit 1
 fi
 
 for x in $FILES; do
-    LINE="${LINE}$x: `cat $x` "
+    echo "$x: `cat $x`" | sed "s#${EDAC_DIR}/[^/]*/##g"
 done
 
-echo "$LINE" | sed 's/\.\/[^\/]*\///g'
-
-cd $SAVE_WD

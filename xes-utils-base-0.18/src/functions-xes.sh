@@ -7,7 +7,7 @@
 # Note: Test changes in both bash *AND* busybox ash
 
 SYS_GPIO=/sys/class/gpio
-XES_BOARD_CONF_DIR=@sysconfdir@/xes/boards
+XES_BOARD_CONF_DIR=${prefix}/etc/xes/boards
 
 ### Generic Functions ###
 
@@ -46,7 +46,7 @@ load_board_config () {
 
     # Get string like this: "<path/fname>:xpedite7332 <path/fname>:xpedite737"
     # for *.conf files found in the product family
-    partials=`ls -1 ${XES_BOARD_CONF_DIR}/${family}*.conf | sed 's,\(.*/\)\([^0-9]*\)\([0-9][0-9]*\)\(x*\)\(.*\),\1\2\3\4\5:\2\3,'`
+    partials=`ls -1 ${XES_BOARD_CONF_DIR}/${family}*.conf 2>/dev/null | sed 's,\(.*/\)\([^0-9]*\)\([0-9][0-9]*\)\(x*\)\(.*\),\1\2\3\4\5:\2\3,'`
 
     for x in ${partials} ; do
         partial=${x##*:}    # the "xpedite737" portion

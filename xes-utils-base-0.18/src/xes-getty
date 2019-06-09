@@ -1,0 +1,103 @@
+#!/bin/bash
+#
+# Simple wrapper around agetty/getty that attempts to auto-detect the
+# serial port and baud rate based on the device tree or kernel command
+# line parameters.
+#
+# Auto-detection will only occur for baud rate if the "-a" flag is passed
+# to the script. Likewise for the serial port  and the "-k" flag. "-a"
+# and "-k"  will be replaced with the actual baud rate or serial port,
+# respectively. Everything else will be passed to agetty/getty unchanged.
+#
+# Author: Nate Case <ncase@xes-inc.com>
+
+DEFAULT_BAUD="115200"
+DEFAULT_PORT="ttyS0"
+UBOOT_BAUD_FILE="/proc/device-tree/u-boot-env/baudrate"
+
+NUMARGS=$#
+AUTOBAUD=0
+AUTOPORT=0
+
+if [[ ${NUMARGS} -gt 9 ]] ; then
+	echo "Warning: Maximum of 9 arguments are supported"
+fi
+
+# Locate the getty binary to use
+GETTY=""
+if [[ -f /sbin/agetty ]] ; then
+    GETTY=/sbin/agetty
+elif [[ -f /sbin/getty ]] ; then
+    GETTY=/sbin/getty
+else
+    GETTY=`which getty`
+fi
+
+if [[ "$GETTY" == "" ]] ; then
+    echo "Error: Unable to locate agetty/getty binary"
+    exit 1
+fi
+
+while [ $# -ge 1 ]; do
+        case $1 in
+        -a)
+             AUTOBAUD=1
+             AUTOBAUD_ARG=arg$((NUMARGS-$#))
+             ;;
+        -k)
+            AUTOPORT=1
+            AUTOPORT_ARG=arg$((NUMARGS-$#))
+            ;;
+        *)
+             var=`echo "$1" | grep "^tty"`
+             if [ -n "$var" ]; then
+                 ttyname=$var
+                 ttydev=/dev/$var
+             fi
+
+             eval arg$((NUMARGS-$#))=\"$1\"
+             ;;
+        esac
+
+	shift
+done
+
+if [ ${AUTOPORT} -ne 0 ]; then
+    port=${DEFAULT_PORT}
+
+    # Look for serial port name on kernel command line
+    cmdline_port=`cat /proc/cmdline | grep -o console=ttyS[0-9]* | \
+                            sed s/console=//g | head -n 1`
+
+    if [ -n "${cmdline_port}" ] ; then
+        port=${cmdline_port}
+    fi
+
+    ttyname=$port
+    ttydev=/dev/$port
+
+    eval ${AUTOPORT_ARG}=\"${port}\"
+fi
+
+if [ ${AUTOBAUD} -ne 0 ]; then
+        baud=${DEFAULT_BAUD}
+
+        # Look for baud rate specified on kernel command line
+        cmdline_baud=`cat /proc/cmdline | \
+                            sed -n "s/.*console=${ttyname},\\([0-9]*\\).*/\\1/p"`
+
+        if [ -n "${cmdline_baud}" ] ; then
+            baud=${cmdline_baud}
+        elif [ -f ${UBOOT_BAUD_FILE} ] ; then
+            baud=`cat ${UBOOT_BAUD_FILE}`
+        fi
+
+        eval ${AUTOBAUD_ARG}=\"${baud}\"
+fi
+
+# If the TTY isn't accessible to stty, then it will also not be accessible to
+# getty and would endlessly respawn. Stop this process so it doesn't respawn.
+stty -F $ttydev > /dev/null 2> /dev/null || kill -STOP $$
+
+exec ${GETTY} "$arg0" "$arg1" "$arg2" "$arg3" "$arg4" "$arg5" "$arg6" "$arg7" \
+	"$arg8" "$arg9"
